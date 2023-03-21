@@ -1,18 +1,18 @@
-/.metadata/
-/Servers/
 
-# Jave related
+# Java related
 *.jar
 *.war
 *.ear
 *.class
 
 # eclipse specific
-.project
+*/.project
+*/.classpath
 */target/**
-.classpath
-.settings/
+*/bin/**
+*/.settings/**
 
 # google io
 */tokens-sheets/**
 */tokens-docs/**
+*/tokens-drive/**
