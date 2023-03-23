@@ -1,0 +1,50 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{floatflt}
+\usepackage{multicol}
+\usepackage{lipsum}
+\usepackage{newspaper-me}
+
+\SetPaperCode{\includegraphics[scale=.3]{images/qr-worldanvil}}
+\SetCurrentIssue{1-1-2021-07-23}
+\SetCurrentDate{YEAR MONTH DAY}
+
+
+\begin{document}
+\maketitle
+
+\headline{\sc\LARGE Pan-Bay Construction to Resume After Costly Delays}
+\begin{floatingfigure}[l]{0.3\textwidth}
+\includegraphics[width=0.28\textwidth]{images/img-01-01-01}
+\end{floatingfigure}
+\lipsum[1-2][1-18]
+...CONT p. 3
+\closearticle
+
+\headline{\sc\LARGE Another Stunning Win for Steele}
+\begin{floatingfigure}[r]{0.3\textwidth}
+\includegraphics[width=0.28\textwidth]{images/img-01-01-02}
+\end{floatingfigure}
+\lipsum[3-4][1-15]
+...CONT p. 7
+\closearticle
+
+
+\begin{multicols}{3}
+\headline{\sc\Large The Quickest Way to Get Rich with the Federation}
+\lipsum[6][1-4]
+...CONT p. 8
+
+\headline{\sc\Large An Exclusive Sneak Peak at What's Next for Nakaram}
+\lipsum[7-8][1-8]
+...CONT p. 2
+
+\headline{\sc\Large Meet the Incredible, Unsung Heros of the Senate}
+\lipsum[9-10][1-3]
+...CONT p. 5
+\end{multicols}
+
+\end{document}

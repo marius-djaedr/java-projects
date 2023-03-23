@@ -1,0 +1,72 @@
+%stolen and modified from https://ctan.mirrors.hoobly.com/macros/latex/contrib/newspaper/newspaper.pdf
+
+
+%%%%%% Package Loading %%%%%%
+\usepackage{yfonts} % used for the paper title font
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{floatflt}
+\usepackage{multicol}
+\usepackage{lipsum}
+
+%% Define font for page title %%
+\DeclareFontFamily{LYG}{bigygoth}{}
+\DeclareFontShape{LYG}{bigygoth}{m}{n}{<->s*[2.5]ygoth}{}
+
+%%%%%%%%%%% Define Text Dimensions %%%%%%%
+\setlength\topmargin{-48pt} % article default = -58pt
+\setlength\headheight{0pt} % article default = 12pt
+\setlength\headsep{34pt} % article default = 25pt
+\setlength\marginparwidth{-20pt} % article default = 121pt
+\setlength\textwidth{7.0in} % article default = 418pt
+\setlength\textheight{9.5in} % article default = 296pt
+\setlength\oddsidemargin{-30pt}
+
+%%%% set internal variables %%%%
+\def\@papercode{\includegraphics[scale=.3]{images/qr-worldanvil}}
+\def\@papername{Nakaram Rep\nobreak\hspace{.001em}ort}
+\def\@currentissue{1}
+\def\@currentdate{YEAR MONTH DAY}
+
+\newcommand\SetPaperCode[1]{%
+\def\@papercode{#1}}
+\newcommand\SetPaperName[1]{%
+\def\@papername{#1}}
+\newcommand\SetCurrentIssue[1]{%
+\def\@currentissue{#1}}
+\newcommand\SetCurrentDate[1]{%
+\def\@currentdate{#1}}
+
+
+%%%%%%%%%%% Redefine \maketitle %%%%%%%
+\renewcommand{\maketitle}{\thispagestyle{empty}
+\vspace*{-40pt}
+\begin{center}
+{\setlength\fboxsep{3mm}\raisebox{12pt}{\parbox[c]{1.15in}{\begin{center}\small \@papercode\end{center}}}}\hfill%
+{\textgoth{\huge\usefont{LYG}{bigygoth}{m}{n} \@papername}}\hfill%
+\raisebox{12pt}{}\\
+\vspace*{0.1in}
+\rule[0pt]{\textwidth}{0.5pt}\\
+{\small ISSUE \@currentissue} \hfill {\small\MakeUppercase{\@currentdate}}\\
+\rule[6pt]{\textwidth}{1.2pt}
+\end{center}
+\pagestyle{plain}
+}
+
+%%%%%%% redefine plain page style %%%%%%%
+\renewcommand{\ps@plain}{%
+\renewcommand\@oddfoot{}% % empty recto footer
+\let\@evenfoot\@oddfoot % empty verso footer
+\renewcommand\@evenhead{}%
+\let\@oddhead\@evenhead}
+
+%%%%%%%%%%% Headline (with byline) command %%%%%%%%%
+\newcommand\headline[1]{\begin{center} #1\\ %
+\rule[3pt]{0.4\hsize}{0.5pt}\\ \end{center} \par}
+\newcommand\byline[2]{\begin{center} #1 \\%
+{\footnotesize\bf By \MakeUppercase{#2}} \\ %
+\rule[3pt]{0.4\hsize}{0.5pt}\\ \end{center} \par}
+\newcommand\closearticle{{\begin{center}\rule[6pt]{\hsize}{1pt}\vspace*{-16pt}
+\rule{\hsize}{0.5pt}\end{center}}}
+%%%%%%%%%%%%%%%%%%%% End of Package %%%%%%%%%%%%%%%
