@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="info" name="gui-swing" packages="com.me.gui.swing.logging">
+  <Appenders>
+  <Console name="STDOUT" >
+      <PatternLayout pattern="%d %-5p %-16t [%C] - %m%n"/>
+    </Console>
+  <GuiAppender name="GuiAppender" >
+      <PatternLayout pattern="%d %-5p %-16t [%C] - %m%n"/>
+    </GuiAppender>
+  </Appenders>
+  <Loggers>
+    <Root level="info">
+      <AppenderRef ref="STDOUT"/>
+      <AppenderRef ref="GuiAppender"/>
+    </Root>
+  </Loggers>
+</Configuration>
