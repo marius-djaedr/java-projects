@@ -16,3 +16,7 @@
 */tokens-sheets/**
 */tokens-docs/**
 */tokens-drive/**
+
+io/src/main/resources/credentials-docs.json
+io/src/main/resources/credentials-drive.json
+io/src/main/resources/credentials-sheets.json
