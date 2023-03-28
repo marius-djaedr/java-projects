@@ -5,82 +5,90 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.me.ttrpg.abilities.analysis.Analyzer;
+import com.me.ttrpg.abilities.constants.AbilityScore;
+import com.me.ttrpg.abilities.dto.AbilityArray;
+import com.me.ttrpg.abilities.dto.ArrayOutputBlock;
+import com.me.ttrpg.abilities.services.OutputService;
+import com.me.util.spring.beans.BeanMapper;
 
 @Component
 public class LaunchWrapper {
-	private static final Logger logger = LoggerFactory.getLogger(LaunchWrapper.class);
+	private static final List<AbilityScore> REFERENCE_ARRAY = Arrays.asList(AbilityScore._18, AbilityScore._16, AbilityScore._14, AbilityScore._12,
+			AbilityScore._10, AbilityScore._8);
 
-	private static final int LOWER_BOUND = 6;
-	private static final int UPPER_BOUND = 18;
-	private static final int MAX_COST = 56;
-	private static final Map<Integer, Integer> COST_MAP = buildCostMap();
+	@Autowired
+	private BeanMapper beanMapper;
+	@Autowired
+	private OutputService outputService;
 
 	public void launch() {
-		final List<List<Integer>> abilityArray = calculateAbilityArray();
-		outputAbilityArray(abilityArray);
+		final List<AbilityArray> abilityArrays = calculateAbilityArrays();
+		final Set<String> analyzerNames = beanMapper.keySet(Analyzer.MAP_NAME);
+
+		final Map<String, List<ArrayOutputBlock>> outputMap = new HashMap<>();
+		outputMap.put("RAW",
+				Arrays.asList(new ArrayOutputBlock("RAW", abilityArrays.stream().map(AbilityArray::convertToOutput).collect(Collectors.toList()))));
+
+		for(final String analyzerName : analyzerNames) {
+			final List<ArrayOutputBlock> analyzerOutput = beanMapper.getBean(Analyzer.class, Analyzer.MAP_NAME, analyzerName).analyze(abilityArrays);
+			outputMap.put(analyzerName, analyzerOutput);
+		}
+		outputService.writeOutput(outputMap);
 	}
 
-	private static Map<Integer, Integer> buildCostMap() {
-		final Map<Integer, Integer> costMap = new HashMap<>();
-		costMap.put(6, 0);
-		costMap.put(7, 1);
-		costMap.put(8, 2);
-		costMap.put(9, 3);
-		costMap.put(10, 4);
-		costMap.put(11, 5);
-		costMap.put(12, 6);
-		costMap.put(13, 7);
-		costMap.put(14, 9);
-		costMap.put(15, 11);
-		costMap.put(16, 14);
-		costMap.put(17, 17);
-		costMap.put(18, 21);
-		return costMap;
-	}
+	public List<AbilityArray> calculateAbilityArrays() {
+		final List<AbilityArray> abilityArrays = new ArrayList<>();
+		final AbilityScore[] allScores = AbilityScore.values();
+		final int costAdjustor = calculateCostAdjustor();
+		final int maxCost = calculateMaxCost(costAdjustor);
 
-	public List<List<Integer>> calculateAbilityArray() {
-		final List<List<Integer>> abilityArray = new ArrayList<>();
-
-		for(int score1 = LOWER_BOUND ; score1 <= UPPER_BOUND ; score1++) {
-			final int cost1 = COST_MAP.get(score1);
-			if(cost1 > MAX_COST) {
+		for(int i1 = 0 ; i1 < allScores.length ; i1++) {
+			final AbilityScore score1 = allScores[i1];
+			final int cost1 = score1.getCost() + costAdjustor;
+			if(cost1 > maxCost) {
 				break;
 			}
-			for(int score2 = LOWER_BOUND ; score2 <= score1 ; score2++) {
-				final int cost12 = cost1 + COST_MAP.get(score2);
-				if(cost12 > MAX_COST) {
+			for(int i2 = 0 ; i2 <= i1 ; i2++) {
+				final AbilityScore score2 = allScores[i2];
+				final int cost12 = cost1 + score2.getCost() + costAdjustor;
+				if(cost12 > maxCost) {
 					break;
 				}
-				for(int score3 = LOWER_BOUND ; score3 <= score2 ; score3++) {
-					final int cost123 = cost12 + COST_MAP.get(score3);
-					if(cost123 > MAX_COST) {
+				for(int i3 = 0 ; i3 <= i2 ; i3++) {
+					final AbilityScore score3 = allScores[i3];
+					final int cost123 = cost12 + score3.getCost() + costAdjustor;
+					if(cost123 > maxCost) {
 						break;
 					}
-					for(int score4 = LOWER_BOUND ; score4 <= score3 ; score4++) {
-						final int cost1234 = cost123 + COST_MAP.get(score4);
-						if(cost1234 > MAX_COST) {
+					for(int i4 = 0 ; i4 <= i3 ; i4++) {
+						final AbilityScore score4 = allScores[i4];
+						final int cost1234 = cost123 + score4.getCost() + costAdjustor;
+						if(cost1234 > maxCost) {
 							break;
 						}
-						for(int score5 = LOWER_BOUND ; score5 <= score4 ; score5++) {
-							final int cost12345 = cost1234 + COST_MAP.get(score5);
-							if(cost12345 > MAX_COST) {
+						for(int i5 = 0 ; i5 <= i4 ; i5++) {
+							final AbilityScore score5 = allScores[i5];
+							final int cost12345 = cost1234 + score5.getCost() + costAdjustor;
+							if(cost12345 > maxCost) {
 								break;
 							}
-							for(int score6 = LOWER_BOUND ; score6 <= score5 ; score6++) {
-								final int cost6 = COST_MAP.get(score6);
-								final int cost123456 = cost12345 + cost6;
-								if(cost123456 > MAX_COST) {
+							for(int i6 = 0 ; i6 <= i5 ; i6++) {
+								final AbilityScore score6 = allScores[i6];
+								final int cost123456 = cost12345 + score6.getCost() + costAdjustor;
+								if(cost123456 > maxCost) {
 									break;
 								}
-								final int pointsRemaining = MAX_COST - cost123456;
-								final int costIncrease6 = COST_MAP.get(score6 + 1) - cost6;
+								final int pointsRemaining = maxCost - cost123456;
+								final int costIncrease6 = allScores[i6 + 1].getCost() - score6.getCost();
 								if(pointsRemaining < costIncrease6) {
-									abilityArray.add(Arrays.asList(score1, score2, score3, score4, score5, score6));
+									abilityArrays.add(AbilityArray.withScores(score1, score2, score3, score4, score5, score6));
 									break;
 								}
 							}
@@ -89,21 +97,15 @@ public class LaunchWrapper {
 				}
 			}
 		}
-		return abilityArray;
+		return abilityArrays;
 	}
 
-	private void outputAbilityArray(final List<List<Integer>> abilityArray) {
-		outputHeader();
-		abilityArray.forEach(this::outputRow);
+	private int calculateCostAdjustor() {
+		return 0 - AbilityScore.values()[0].getCost();
 	}
 
-	private void outputHeader() {
-		// TODO Auto-generated method stub
-
+	private int calculateMaxCost(final int costAdjustor) {
+		return REFERENCE_ARRAY.stream().mapToInt(AbilityScore::getCost).map(c -> c + costAdjustor).sum();
 	}
 
-	private void outputRow(final List<Integer> row) {
-		final String rowString = row.stream().map(i -> String.format("%2d", i)).collect(Collectors.joining(" "));
-		logger.info("\n" + rowString);
-	}
 }
