@@ -7,12 +7,11 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 import com.me.ttrpg.abilities.dto.ArrayOutputBlock;
 import com.me.ttrpg.abilities.dto.ArrayOutputRow;
 
-@Service
+//@Service
 public class ConsoleOutputService implements OutputService {
 	private static final Logger logger = LoggerFactory.getLogger(ConsoleOutputService.class);
 

@@ -1,6 +1,7 @@
 package com.me.io.google;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,6 +13,11 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
+import com.google.api.services.sheets.v4.model.AddSheetRequest;
+import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest;
+import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetResponse;
+import com.google.api.services.sheets.v4.model.Request;
+import com.google.api.services.sheets.v4.model.SheetProperties;
 import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 
@@ -37,7 +43,12 @@ public class GoogleSheetsIo extends AbstractGoogleIo<Sheets> {
 
 		final UpdateValuesResponse result = service.spreadsheets().values().update(sheetId, startingPosition, new ValueRange().setValues(valueObject))
 				.setValueInputOption(inputOption).execute();
-
 	}
 
+	public void addTabToSheet(final String sheetId, final String sheetTabName) throws IOException {
+		final BatchUpdateSpreadsheetResponse response = service.spreadsheets().batchUpdate(sheetId,
+				new BatchUpdateSpreadsheetRequest().setRequests(
+						Arrays.asList(new Request().setAddSheet(new AddSheetRequest().setProperties(new SheetProperties().setTitle(sheetTabName))))))
+				.execute();
+	}
 }

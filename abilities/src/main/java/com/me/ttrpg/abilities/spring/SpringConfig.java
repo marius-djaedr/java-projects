@@ -5,7 +5,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import com.me.io.CsvIo;
+import com.me.io.google.GoogleSheetsIo;
 import com.me.util.spring.UtilSpringConfig;
 
 @Configuration
@@ -14,7 +14,7 @@ import com.me.util.spring.UtilSpringConfig;
 public class SpringConfig {
 
 	@Bean
-	public CsvIo csvIo() {
-		return new CsvIo();
+	public GoogleSheetsIo sheetsIo() {
+		return new GoogleSheetsIo();
 	}
 }

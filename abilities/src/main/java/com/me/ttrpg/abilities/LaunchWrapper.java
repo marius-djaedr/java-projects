@@ -33,7 +33,7 @@ public class LaunchWrapper {
 		final Set<String> analyzerNames = beanMapper.keySet(Analyzer.MAP_NAME);
 
 		final Map<String, List<ArrayOutputBlock>> outputMap = new HashMap<>();
-		outputMap.put("RAW",
+		outputMap.put("Sheet1",
 				Arrays.asList(new ArrayOutputBlock("RAW", abilityArrays.stream().map(AbilityArray::convertToOutput).collect(Collectors.toList()))));
 
 		for(final String analyzerName : analyzerNames) {
