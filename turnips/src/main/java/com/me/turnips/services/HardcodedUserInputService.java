@@ -16,7 +16,7 @@ public class HardcodedUserInputService implements IUserInputService {
 	private static final CurveType previousPattern = CurveType.DECREASING;
 	private static final EnumMap<DayTime, Integer> weekCurve = buildWeekCurve();
 
-	private static final DayTime currentDayTime = DayTime.TUESDAY_AM;
+	private static final DayTime currentDayTime = DayTime.WEDNESDAY_AM;
 
 	private static EnumMap<DayTime, Integer> buildWeekCurve() {
 		final EnumMap<DayTime, Integer> input = new EnumMap<>(DayTime.class);
@@ -24,8 +24,8 @@ public class HardcodedUserInputService implements IUserInputService {
 		input.put(DayTime.MONDAY_AM, 84);
 		input.put(DayTime.MONDAY_PM, 79);
 		input.put(DayTime.TUESDAY_AM, 75);
-		input.put(DayTime.TUESDAY_PM, null);
-		input.put(DayTime.WEDNESDAY_AM, null);
+		input.put(DayTime.TUESDAY_PM, 124);
+		input.put(DayTime.WEDNESDAY_AM, 168);
 		input.put(DayTime.WEDNESDAY_PM, null);
 		input.put(DayTime.THURSDAY_AM, null);
 		input.put(DayTime.THURSDAY_PM, null);
