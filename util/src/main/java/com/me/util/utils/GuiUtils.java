@@ -12,9 +12,14 @@ import javax.swing.JFrame;
 
 public class GuiUtils {
 	private static final String BASE_PATH = "src/main/resources/icons";
+	private static final Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
+
+	public static Dimension getScreenDimensions() {
+		return SCREEN_SIZE;
+	}
 
 	/**
-	 * 
+	 *
 	 * @param path the path within src/main/resources/icons/
 	 * @return
 	 */
@@ -32,9 +37,8 @@ public class GuiUtils {
 	}
 
 	public static void centerFrameInWindow(final JFrame frame) {
-		final Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
-		final int x = (int) ((dimension.getWidth() - frame.getWidth()) / 2);
-		final int y = (int) ((dimension.getHeight() - frame.getHeight()) / 2);
+		final int x = (int) ((SCREEN_SIZE.getWidth() - frame.getWidth()) / 2);
+		final int y = (int) ((SCREEN_SIZE.getHeight() - frame.getHeight()) / 2);
 		frame.setLocation(x, y);
 	}
 }

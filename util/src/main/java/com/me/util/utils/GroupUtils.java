@@ -1,6 +1,7 @@
 package com.me.util.utils;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -16,12 +17,15 @@ public class GroupUtils {
 		return buildMapFromList(Arrays.asList(enumClass.getEnumConstants()), keyFunc, valueFunc, includeNull);
 	}
 
+	@Deprecated
 	public static <E, K, V> Map<K, V> buildMapFromList(final List<? extends E> list, final Function<E, K> keyFunc, final Function<E, V> valueFunc,
 			final boolean includeNull) {
-		//		return list.stream().collect(Collectors.toMap(keyFunc, valueFunc, throwingMerger(), ConcurrentHashMap::new));
-		//		return list.stream().collect(ConcurrentHashMap::new, (m, e) -> m.put(keyFunc.apply(e), valueFunc.apply(e)), (m1, m2) -> m1.putAll(m2));
-		//		return list.stream().collect(HashMap::new, (m, e) -> m.put(keyFunc.apply(e), valueFunc.apply(e)), (m1, m2) -> m1.putAll(m2));
-		return list.stream().filter(e -> includeNull || (keyFunc.apply(e) != null && valueFunc.apply(e) != null))
+		return buildMapFromCollection(list, keyFunc, valueFunc, includeNull);
+	}
+
+	public static <E, K, V> Map<K, V> buildMapFromCollection(final Collection<? extends E> collection, final Function<E, K> keyFunc,
+			final Function<E, V> valueFunc, final boolean includeNull) {
+		return collection.stream().filter(e -> includeNull || (keyFunc.apply(e) != null && valueFunc.apply(e) != null))
 				.collect(Collectors.toMap(keyFunc, valueFunc));
 	}
 
@@ -31,7 +35,7 @@ public class GroupUtils {
 
 	/**
 	 * copied from Collectors
-	 * 
+	 *
 	 * Returns a merge function, suitable for use in
 	 * {@link Map#merge(Object, Object, BiFunction) Map.merge()} or
 	 * {@link #toMap(Function, Function, BinaryOperator) toMap()}, which always
