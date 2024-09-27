@@ -1,5 +1,6 @@
 package com.me.util.utils;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.function.Function;
 
@@ -13,6 +14,10 @@ public class DtoUtil {
 
 		final T transformed = transformer.apply(other);
 		return transformed == null || transformed.isEmpty() ? null : transformed;
+	}
+
+	public static boolean isEmpty(final BigDecimal value) {
+		return value == null || BigDecimal.ZERO.compareTo(value) == 0;
 	}
 
 	public static boolean isEmpty(final EmptyAble dto) {
