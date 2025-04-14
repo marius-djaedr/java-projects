@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Npc {
-	private String name, sex, race, characteristic, ideal, flaw;
+	private String name, pronouns, race, characteristic, ideal, flaw;
 	private final List<String> bonds = new ArrayList<>();
 
 	public String getName() {
@@ -15,12 +15,12 @@ public class Npc {
 		this.name = name;
 	}
 
-	public String getSex() {
-		return sex;
+	public String getPronouns() {
+		return pronouns;
 	}
 
-	public void setSex(final String sex) {
-		this.sex = sex;
+	public void setPronouns(final String pronouns) {
+		this.pronouns = pronouns;
 	}
 
 	public String getRace() {
@@ -65,7 +65,7 @@ public class Npc {
 
 	@Override
 	public String toString() {
-		String ret = name + ": " + sex + " " + race;
+		String ret = name + " (" + pronouns + "): " + race;
 		ret += "\n[ul]";
 		ret += "\n[li]" + characteristic + "[/li]";
 		ret += "\n[li]" + ideal + "[/li]";
