@@ -10,6 +10,7 @@ import javax.annotation.PostConstruct;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -96,7 +97,9 @@ public class GuiLaunchView extends JFrame {
 
 		final JPanel textPanel = new JPanel();
 		this.generated = new JTextArea(20, 120);
-		textPanel.add(generated);
+		generated.setMaximumSize(getMaximumSize());
+
+		textPanel.add(new JScrollPane(generated));
 		c.gridy++;
 		mainPanel.add(textPanel, c);
 
