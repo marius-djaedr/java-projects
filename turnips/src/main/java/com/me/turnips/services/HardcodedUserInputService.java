@@ -13,19 +13,19 @@ public class HardcodedUserInputService implements IUserInputService {
 
 	//TODO a better way to pass these in
 	private static final boolean firstTime = false;
-	private static final CurveType previousPattern = CurveType.DECREASING;
+	private static final CurveType previousPattern = CurveType.UNKNOWN;
 	private static final EnumMap<DayTime, Integer> weekCurve = buildWeekCurve();
 
-	private static final DayTime currentDayTime = DayTime.WEDNESDAY_AM;
+	private static final DayTime currentDayTime = DayTime.SUNDAY;
 
 	private static EnumMap<DayTime, Integer> buildWeekCurve() {
 		final EnumMap<DayTime, Integer> input = new EnumMap<>(DayTime.class);
-		input.put(DayTime.SUNDAY, 98);
-		input.put(DayTime.MONDAY_AM, 84);
-		input.put(DayTime.MONDAY_PM, 79);
-		input.put(DayTime.TUESDAY_AM, 75);
-		input.put(DayTime.TUESDAY_PM, 124);
-		input.put(DayTime.WEDNESDAY_AM, 168);
+		input.put(DayTime.SUNDAY, 110);
+		input.put(DayTime.MONDAY_AM, null);
+		input.put(DayTime.MONDAY_PM, null);
+		input.put(DayTime.TUESDAY_AM, null);
+		input.put(DayTime.TUESDAY_PM, null);
+		input.put(DayTime.WEDNESDAY_AM, null);
 		input.put(DayTime.WEDNESDAY_PM, null);
 		input.put(DayTime.THURSDAY_AM, null);
 		input.put(DayTime.THURSDAY_PM, null);

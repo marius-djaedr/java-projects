@@ -1,142 +1,96 @@
 package com.me.turnips.processors;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.mortbay.io.RuntimeIOException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.me.io.google.GoogleSheetsIo;
+import com.me.turnips.constants.CurveType;
+import com.me.turnips.constants.DayTime;
+import com.me.turnips.constants.TurnipConstants;
 import com.me.turnips.dtos.CostCurve;
+import com.me.turnips.dtos.DailyCost;
 import com.me.turnips.dtos.UserInput;
 
-//TODO currently turned off
-public class BuyCurveProcessor implements IEachCurveProcessor {
-	//	private Map<CostCurve, BigDecimal> curveMax;
-	//	private Map<CostCurve, DayTime> latestLocationOfMax;
-	///////////////////////
-	//	private BigDecimal probBuyToday;
+@Component
+public class BuyCurveProcessor implements IBulkCurveProcessor {
+	@Autowired
+	private GoogleSheetsIo googleSheetsIo;
+
+	private Integer priceAtBought;
+	private Integer priceNow;
+	private Map<CurveType, BigDecimal> netProbability;
+	private Map<CurveType, BigDecimal> netValue;
 
 	@Override
 	public void initialize(final UserInput userInput) {
-		//		curveMax = new HashMap<>();
-		//		latestLocationOfMax = new HashMap<>();
-		/////////////////////////
-		//		probBuyToday = BigDecimal.ZERO;
+		priceAtBought = userInput.getWeekCurve().get(DayTime.SUNDAY);
+		priceNow = userInput.getWeekCurve().get(userInput.getCurrentDayTime());
+
+		netProbability = new HashMap<>();
+		netValue = new HashMap<>();
 	}
 
-	//	@Override
-	//	public void process(final CostCurve curve, final DayTime dayTime, final DailyCost curveCost) {
-	//		if(dayTime.ordinal() >= InputConstants.currentDayTime.ordinal()) {
-	//			final BigDecimal currentMax = curveMax.getOrDefault(curve, BigDecimal.ZERO);
-	//			final BigDecimal average = curveCost.average();
-	//			if(average != null) {
-	//				if(average.compareTo(currentMax) > 0) {
-	//					curveMax.put(curve, average);
-	//					latestLocationOfMax.put(curve, dayTime);
-	//				} else if(average.compareTo(currentMax) == 0 && dayTime.ordinal() > latestLocationOfMax.get(curve).ordinal()) {
-	//					latestLocationOfMax.put(curve, dayTime);
-	//				}
-	//				//else do nothing
-	//			}
-	//		}
-	//	}
-	////////////////////////////////////////////////////////////////////////////
 	@Override
-	public void process(final CostCurve curve) {
-		//for each curve, need the following for each day today and later
-		//  - probability buy that day
-		//  - potential loss for that day
+	public void process(final Collection<CostCurve> curves) {
+		final Map<CurveType, List<CostCurve>> curveTypeMap = curves.stream().collect(Collectors.groupingBy(CostCurve::getCurveType));
 
-		// for spikes:
-		//  - find the day for maximum
-		//  - probability buy that day is 1, all else are 0
-		//  - loss for that day is 0, all else are value for that day subtracted from the maximum value
-
-		//for decreasing:
-		//  - probability buy today is 1, all else are 0
-		//  - loss for every day but today is that day's value subtracted from today's value
-
-		// from this, spikes and decreasing can be treated the same, knowing that decreasing's maximum value is today
-
-		//for fluctuating:
-		//  - set today's value as a threshold
-		//  - for each day, calculate the percent of that range that is equal or above threshold, that is probability buy that day
-		//  - ?? how to calculate loss? what is used as the "max value" that the others have? should it be today? should it be calculated from buy values?
-
-		//////////////////
-		//		final CurveType curveType = curve.getCurveType();
-		//
-		//		switch(curveType) {
-		//			case LARGE_SPIKE:
-		//			case SMALL_SPIKE:
-		//				processSpike(curve);
-		//				break;
-		//			case DECREASING:
-		//				processDecreasing(curve);
-		//				break;
-		//			case FLUCTUATING:
-		//				processFluctuating(curve);
-		//				break;
-		//			case UNKNOWN:
-		//			default:
-		//				throw new NotImplementedException("A new curve type has been defined but the logic is missing here");
-		//		}
+		Arrays.asList(CurveType.values()).forEach(t -> netProbability.put(t, calculateProbability(curveTypeMap.get(t))));
+		Arrays.asList(CurveType.values()).forEach(t -> netValue.put(t, calculateValue(t, curveTypeMap.get(t))));
 	}
-	//
-	//	private void processDecreasing(final CostCurve curve) {
-	//		probBuyToday = probBuyToday.add(curve.getProbability());
-	//		// TODO Auto-generated method stub
-	//	}
-	//
-	//	private void processSpike(final CostCurve curve) {
-	//		final boolean todayIsSpike = false;//TODO
-	//		if(todayIsSpike) {
-	//			probBuyToday = probBuyToday.add(curve.getProbability());
-	//		}
-	//		// TODO Auto-generated method stub
-	//	}
-	//
-	//	private void processFluctuating(final CostCurve curve) {
-	//		// TODO Auto-generated method stub
-	//	}
-	////////////////////////////////////////////////////////////////////////////
 
-	//	@Override
-	//	public void process(final Collection<CostCurve> curves) {
-	//		final Map<CurveType, List<CostCurve>> curveTypeMap = curves.stream().collect(Collectors.groupingBy(CostCurve::getCurveType));
-	//
-	//		final List<CostCurve> buyTodayCurves = new ArrayList<>();
-	//		final List<CostCurve> buyLaterCurves = new ArrayList<>();
-	//
-	//		curveTypeMap.getOrDefault(CurveType.DECREASING, new ArrayList<>()).forEach(buyTodayCurves::add);
-	//
-	//		final Map<Boolean, List<CostCurve>> fluctuatingCurveBuyTodayMapping = curveTypeMap.getOrDefault(CurveType.FLUCTUATING, new ArrayList<>())
-	//				.stream().collect(Collectors.groupingBy(this::shouldFluctuatingBuyToday));
-	//		buyTodayCurves.addAll(fluctuatingCurveBuyTodayMapping.get(true));
-	//		buyTodayCurves.addAll(fluctuatingCurveBuyTodayMapping.get(false));
-	//
-	//		fluctuatingCurveBuyTodayMapping.get(null);//TODO the complicated ones, where som
-	//
-	//		// TODO Auto-generated method stub
-	//
-	//	}
-	//
-	//private Boolean shouldFluctuatingBuyToday(final CostCurve fluctuating) {
-	//
-	//}
+	private BigDecimal calculateProbability(final List<CostCurve> list) {
+		if(list == null) {
+			return BigDecimal.ZERO;
+		}
+		return list.stream().map(c -> c.getProbability()).reduce(BigDecimal::add).orElseGet(() -> BigDecimal.ZERO);
+	}
+
+	private BigDecimal calculateValue(final CurveType t, final List<CostCurve> list) {
+		if(list == null) {
+			return BigDecimal.ZERO;
+		}
+		if(CurveType.DECREASING == t) {
+			return list.stream().map(CostCurve::getCostMap).map(m -> m.get(DayTime.THURSDAY_PM)).map(DailyCost::average).min(BigDecimal::compareTo)
+					.orElseGet(() -> BigDecimal.ZERO);
+		}
+		return list.stream().map(CostCurve::getCostMap).map(Map::values).flatMap(Collection::stream).map(DailyCost::average)
+				.max(BigDecimal::compareTo).orElseGet(() -> BigDecimal.ZERO);
+	}
+
 	@Override
 	public void output() {
-		//		final Set<CostCurve> curves = curveMax.keySet();
-		//
-		//		final EnumMap<DayTime, BigDecimal> filteredExpectedMaxes = new EnumMap<>(DayTime.class);
-		//		BigDecimal totalE = BigDecimal.ZERO;
-		//
-		//		for(final CostCurve curve : curves) {
-		//			final DayTime dayTime = latestLocationOfMax.get(curve);
-		//			final BigDecimal toAdd = curveMax.get(curve).multiply(curve.getProbability());
-		//
-		//			final BigDecimal sum = filteredExpectedMaxes.getOrDefault(dayTime, BigDecimal.ZERO).add(toAdd);
-		//			filteredExpectedMaxes.put(dayTime, sum);
-		//
-		//			totalE = totalE.add(toAdd);
-		//		}
+		try {
+			googleSheetsIo.writeToSheet(Arrays.asList(Arrays.asList(Integer.toString(priceAtBought))), TurnipConstants.SHEET_ID,
+					TurnipConstants.SHEET_NAME + "C2", false);
+			googleSheetsIo.writeToSheet(Arrays.asList(Arrays.asList(Integer.toString(priceNow))), TurnipConstants.SHEET_ID,
+					TurnipConstants.SHEET_NAME + "C6", false);
 
-		// TODO output to the sheet
+			final List<String> small = curveTypeRow(CurveType.SMALL_SPIKE);
+			final List<String> large = curveTypeRow(CurveType.LARGE_SPIKE);
+			final List<String> decrease = curveTypeRow(CurveType.DECREASING);
+			final List<String> fluctuating = curveTypeRow(CurveType.FLUCTUATING);
+			final List<List<String>> values = Arrays.asList(small, large, decrease, fluctuating);
 
+			googleSheetsIo.writeToSheet(values, TurnipConstants.SHEET_ID, TurnipConstants.SHEET_NAME + "B8", false);
+
+		} catch(final IOException e) {
+			throw new RuntimeIOException(e);
+		}
+	}
+
+	private List<String> curveTypeRow(final CurveType curveType) {
+		return Arrays.asList(TurnipConstants.BIG_DECIMAL_FORMATTER.apply(netProbability.get(curveType)),
+				TurnipConstants.BIG_DECIMAL_FORMATTER.apply(netValue.get(curveType)));
 	}
 
 }
