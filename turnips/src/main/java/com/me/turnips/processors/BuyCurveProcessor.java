@@ -2,6 +2,7 @@ package com.me.turnips.processors;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,15 +27,20 @@ public class BuyCurveProcessor implements IBulkCurveProcessor {
 	@Autowired
 	private GoogleSheetsIo googleSheetsIo;
 
+	private final BigDecimal _zero = BigDecimal.ZERO.setScale(10);
+
 	private Integer priceAtBought;
 	private Integer priceNow;
+	private List<DayTime> daysAfterNow;
 	private Map<CurveType, BigDecimal> netProbability;
 	private Map<CurveType, BigDecimal> netValue;
 
 	@Override
 	public void initialize(final UserInput userInput) {
 		priceAtBought = userInput.getWeekCurve().get(DayTime.SUNDAY);
-		priceNow = userInput.getWeekCurve().get(userInput.getCurrentDayTime());
+		final DayTime now = userInput.getCurrentDayTime();
+		daysAfterNow = DayTime.after(now);
+		priceNow = userInput.getWeekCurve().get(now);
 
 		netProbability = new HashMap<>();
 		netValue = new HashMap<>();
@@ -49,22 +55,29 @@ public class BuyCurveProcessor implements IBulkCurveProcessor {
 	}
 
 	private BigDecimal calculateProbability(final List<CostCurve> list) {
-		if(list == null) {
-			return BigDecimal.ZERO;
+		if(list == null || list.isEmpty()) {
+			return _zero;
 		}
-		return list.stream().map(c -> c.getProbability()).reduce(BigDecimal::add).orElseGet(() -> BigDecimal.ZERO);
+		return list.stream().map(c -> c.getProbability()).reduce(BigDecimal::add).orElseGet(() -> _zero);
 	}
 
 	private BigDecimal calculateValue(final CurveType t, final List<CostCurve> list) {
-		if(list == null) {
-			return BigDecimal.ZERO;
+		if(list == null || list.isEmpty()) {
+			return _zero;
 		}
 		if(CurveType.DECREASING == t) {
 			return list.stream().map(CostCurve::getCostMap).map(m -> m.get(DayTime.THURSDAY_PM)).map(DailyCost::average).min(BigDecimal::compareTo)
-					.orElseGet(() -> BigDecimal.ZERO);
+					.orElseGet(() -> _zero);
 		}
-		return list.stream().map(CostCurve::getCostMap).map(Map::values).flatMap(Collection::stream).map(DailyCost::average)
-				.max(BigDecimal::compareTo).orElseGet(() -> BigDecimal.ZERO);
+
+		final BigDecimal weightedValue = list.stream().map(c -> c.getProbability().multiply(getMaxAfterToday(c))).reduce(BigDecimal::add)
+				.orElseGet(() -> _zero);
+		return weightedValue.divide(netProbability.get(t), RoundingMode.HALF_UP);
+	}
+
+	private BigDecimal getMaxAfterToday(final CostCurve curve) {
+		return curve.getCostMap().entrySet().stream().filter(e -> daysAfterNow.contains(e.getKey())).map(Map.Entry::getValue).map(DailyCost::average)
+				.max(BigDecimal::compareTo).orElseGet(() -> _zero);
 	}
 
 	@Override
