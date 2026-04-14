@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.mortbay.io.RuntimeIOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -28,6 +30,7 @@ import com.me.turnips.services.IUserInputService;
 
 @Component
 public class LaunchWrapper {
+	private static final Logger logger = LoggerFactory.getLogger(LaunchWrapper.class);
 	@Autowired
 	private GoogleSheetsIo googleSheetsIo;
 
@@ -39,8 +42,11 @@ public class LaunchWrapper {
 	private ApplicationContext context;
 
 	public void launch() {
+		logger.info("Start Get Curves");
 		final UserInput userInput = userInputService.getUserInput();
 		final List<CostCurve> curves = curveInputService.getCurves(userInput);
+		logger.info("Finished Get Curves");
+		logger.info("Start Process");
 		outputCurves(curves);
 		final Collection<ICurveProcessor> processors = context.getBeansOfType(ICurveProcessor.class).values();
 		processors.forEach(p -> p.initialize(userInput));
@@ -64,7 +70,10 @@ public class LaunchWrapper {
 				eachElementProcessors.forEach(p -> p.process(curve, dayTime, costMap.get(dayTime)));
 			}
 		}
+		logger.info("Finished Process");
+		logger.info("Start Output");
 		processors.forEach(ICurveProcessor::output);
+		logger.info("Finished Output");
 	}
 
 	//TODO extract this and all other output into some kind of service layer independent of output
