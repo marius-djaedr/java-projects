@@ -16,15 +16,15 @@ public class HardcodedUserInputService implements IUserInputService {
 	private static final CurveType previousPattern = CurveType.FLUCTUATING;
 	private static final EnumMap<DayTime, Integer> weekCurve = buildWeekCurve();
 
-	private static final DayTime currentDayTime = DayTime.MONDAY_AM;
+	private static final DayTime currentDayTime = DayTime.TUESDAY_PM;
 
 	private static EnumMap<DayTime, Integer> buildWeekCurve() {
 		final EnumMap<DayTime, Integer> input = new EnumMap<>(DayTime.class);
 		input.put(DayTime.SUNDAY, 105);
 		input.put(DayTime.MONDAY_AM, 92);
-		input.put(DayTime.MONDAY_PM, null);
-		input.put(DayTime.TUESDAY_AM, null);
-		input.put(DayTime.TUESDAY_PM, null);
+		input.put(DayTime.MONDAY_PM, 87);
+		input.put(DayTime.TUESDAY_AM, 84);
+		input.put(DayTime.TUESDAY_PM, 140);
 		input.put(DayTime.WEDNESDAY_AM, null);
 		input.put(DayTime.WEDNESDAY_PM, null);
 		input.put(DayTime.THURSDAY_AM, null);
