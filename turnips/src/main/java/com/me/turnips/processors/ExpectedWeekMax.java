@@ -93,7 +93,7 @@ public class ExpectedWeekMax implements IEachElementCurveProcessor {
 			values.get(2).add(TurnipConstants.BIG_DECIMAL_FORMATTER.apply(cumuDayMap.get(dayTime)));
 			values.get(3).add("");
 		}
-		values.get(3).set(expectedOccurrenceSum.intValue() + 2, "0");
+		values.get(3).set(expectedOccurrenceSum.setScale(0, RoundingMode.HALF_UP).intValue() + 1, "0");
 
 		try {
 			googleSheetsIo.writeToSheet(Arrays.asList(Arrays.asList(TurnipConstants.BIG_DECIMAL_FORMATTER.apply(expectedMax))),
